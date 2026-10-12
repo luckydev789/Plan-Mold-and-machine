@@ -1,0 +1,6 @@
+{
+  "name": "MoldCraft MPS - แผนงานการผลิตแม่พิมพ์และเครื่องจักร",
+  "description": "ระบบวางแผนการผลิตแม่พิมพ์และเครื่องจักร แยกตามเครื่องจักร (Machine-Centric) และกลุ่มงาน (Job-Centric) พร้อม Timeline & Gantt Chart และระบบอัปโหลดไฟล์",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
