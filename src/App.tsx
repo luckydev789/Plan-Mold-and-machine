@@ -7,8 +7,6 @@ import {
   computeJobSummaries,
   formatTo24Hour 
 } from './utils/productionParser';
-import { exportProductionCSV } from './utils/productionExport';
-
 import { ProductionHeader, ProductionViewMode } from './components/production/ProductionHeader';
 import { MachineDashboard } from './components/production/MachineDashboard';
 import { JobDashboard } from './components/production/JobDashboard';
@@ -16,7 +14,6 @@ import { ProductionGantt } from './components/production/ProductionGantt';
 import { MasterDataTable } from './components/production/MasterDataTable';
 import { FileUploadModal } from './components/production/FileUploadModal';
 import { AIAdvisorModal } from './components/production/AIAdvisorModal';
-import { ExportBundleModal } from './components/production/ExportBundleModal';
 
 const STORAGE_KEY = 'moldcraft_production_tasks_v3';
 const STORAGE_TIME_KEY = 'moldcraft_last_upload_time_v3';
@@ -71,7 +68,6 @@ export default function App() {
   // Modals
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [aiAdvisorModalOpen, setAIAdvisorModalOpen] = useState(false);
-  const [exportBundleModalOpen, setExportBundleModalOpen] = useState(false);
 
   // Sync to localStorage
   useEffect(() => {
@@ -149,10 +145,6 @@ export default function App() {
     } catch (e) {}
   };
 
-  const handleExportCSV = () => {
-    exportProductionCSV(tasks, 'mold_machine_schedule');
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col antialiased selection:bg-slate-900 selection:text-white">
       {/* Executive Top Header */}
@@ -169,9 +161,7 @@ export default function App() {
           setCurrentView(v);
         }}
         onOpenUpload={() => setUploadModalOpen(true)}
-        onExportCSV={handleExportCSV}
         onOpenAIAdvisor={() => setAIAdvisorModalOpen(true)}
-        onOpenExportBundle={() => setExportBundleModalOpen(true)}
         totalTasks={tasks.length}
         totalMachines={machineSummaries.length}
         totalJobs={jobSummaries.length}
@@ -245,11 +235,6 @@ export default function App() {
         tasks={tasks}
         machineSummaries={machineSummaries}
         jobSummaries={jobSummaries}
-      />
-
-      <ExportBundleModal
-        isOpen={exportBundleModalOpen}
-        onClose={() => setExportBundleModalOpen(false)}
       />
     </div>
   );
