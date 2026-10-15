@@ -12,14 +12,17 @@ import {
   RotateCcw,
   Loader2,
   FileCode,
-  Download
+  Download,
+  Clock
 } from 'lucide-react';
+import { formatDateTimeThai24h } from '../../utils/productionParser';
 
 interface FileUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdateTasks: (newTasks: ProductionTask[], mode: 'overwrite' | 'append') => void;
   onResetToDefault: () => void;
+  lastUploadTime?: string;
 }
 
 export const FileUploadModal: React.FC<FileUploadModalProps> = ({
@@ -27,7 +30,9 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
   onClose,
   onUpdateTasks,
   onResetToDefault,
+  lastUploadTime,
 }) => {
+  const formattedTime = React.useMemo(() => formatDateTimeThai24h(lastUploadTime), [lastUploadTime]);
   const [file, setFile] = useState<File | null>(null);
   const [importMode, setImportMode] = useState<'overwrite' | 'append'>('overwrite');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -150,6 +155,15 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
             )}
           </div>
 
+          {/* Timestamp Info */}
+          <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-lg">
+            <span className="text-slate-600 font-medium">ข้อมูลแผนงานล่าสุดในระบบ:</span>
+            <span className="flex items-center gap-1.5 text-slate-800 font-semibold">
+              <Clock className="w-3.5 h-3.5 text-indigo-600" />
+              <span>วันที่ {formattedTime.dateStr} เวลา {formattedTime.timeStr} น.</span>
+            </span>
+          </div>
+
           {/* Processing State */}
           {isProcessing && (
             <div className="flex items-center justify-center gap-2 py-4 text-xs font-medium text-indigo-700 bg-indigo-50 rounded-lg">
@@ -254,23 +268,29 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-200/60 rounded-lg transition-colors"
+            className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-200/60 rounded-lg transition-colors cursor-pointer"
           >
             ยกเลิก
           </button>
-          <button
-            type="button"
-            disabled={!previewTasks || previewTasks.length === 0}
-            onClick={handleConfirmUpload}
-            className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-40 rounded-lg transition-colors shadow-xs"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            <span>ยืนยันอัปเดตแผนงาน & รีเฟรชแดชบอร์ด</span>
-          </button>
+          <div className="flex flex-col items-end">
+            <button
+              type="button"
+              disabled={!previewTasks || previewTasks.length === 0}
+              onClick={handleConfirmUpload}
+              className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 disabled:opacity-40 rounded-lg transition-colors shadow-xs cursor-pointer"
+            >
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>ยืนยันอัปเดตแผนงาน & รีเฟรชแดชบอร์ด</span>
+            </button>
+            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono mt-1">
+              <Clock className="w-2.5 h-2.5 text-slate-400" />
+              <span>วันที่ {formattedTime.dateStr} เวลา {formattedTime.timeStr} น.</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

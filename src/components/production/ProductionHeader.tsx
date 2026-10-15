@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { 
   Cpu, 
   Layers, 
@@ -8,8 +8,10 @@ import {
   FileSpreadsheet, 
   Sparkles,
   RefreshCw,
-  FileCode
+  FileCode,
+  Clock
 } from 'lucide-react';
+import { formatDateTimeThai24h } from '../../utils/productionParser';
 
 export type ProductionViewMode = 'machine' | 'job' | 'timeline' | 'master';
 
@@ -23,6 +25,7 @@ interface ProductionHeaderProps {
   totalTasks: number;
   totalMachines: number;
   totalJobs: number;
+  lastUploadTime?: string;
 }
 
 export const ProductionHeader: React.FC<ProductionHeaderProps> = ({
@@ -35,8 +38,12 @@ export const ProductionHeader: React.FC<ProductionHeaderProps> = ({
   totalTasks,
   totalMachines,
   totalJobs,
+  lastUploadTime,
 }) => {
+  const formattedTime = useMemo(() => formatDateTimeThai24h(lastUploadTime), [lastUploadTime]);
+
   const tabs: { id: ProductionViewMode; label: string; icon: React.ReactNode }[] = [
+
     { id: 'machine', label: 'แดชบอร์ดเครื่องจักร (Machine-Centric)', icon: <Cpu className="w-4 h-4" /> },
     { id: 'job', label: 'แดชบอร์ดกลุ่มงาน (Job-Centric)', icon: <Layers className="w-4 h-4" /> },
     { id: 'timeline', label: 'Timeline & Gantt Chart', icon: <GanttChartSquare className="w-4 h-4" /> },
@@ -91,6 +98,27 @@ export const ProductionHeader: React.FC<ProductionHeaderProps> = ({
 
         {/* Zone 3: Primary Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          {onOpenUpload && (
+            <div className="flex flex-col items-center sm:items-end">
+              <button
+                onClick={onOpenUpload}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 border border-indigo-500 rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-xs"
+                title="อัปโหลดไฟล์แผนงาน (.xlsx, .csv, .mpp) เพื่ออัปเดตระบบ"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">อัพโหลดไฟล์</span>
+                <span className="sm:hidden">อัพโหลด</span>
+              </button>
+              <div 
+                className="flex items-center gap-1 text-[10px] text-slate-300 font-mono mt-0.5 whitespace-nowrap"
+                title="วันที่และเวลาที่มีการอัปโหลดหรืออัปเดตแผนงานล่าสุด (24 ชั่วโมง)"
+              >
+                <Clock className="w-2.5 h-2.5 text-indigo-300 shrink-0" />
+                <span>วันที่ {formattedTime.dateStr} {formattedTime.timeStr} น.</span>
+              </div>
+            </div>
+          )}
+
           <button
             onClick={onOpenAIAdvisor}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-300 bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-700/70 rounded-lg transition-colors whitespace-nowrap"
@@ -100,7 +128,6 @@ export const ProductionHeader: React.FC<ProductionHeaderProps> = ({
             <span className="hidden md:inline">วิเคราะห์กำลังการผลิต AI</span>
             <span className="md:hidden">AI</span>
           </button>
-
 
           <button
             onClick={onExportCSV}

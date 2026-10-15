@@ -19,6 +19,7 @@ import { AIAdvisorModal } from './components/production/AIAdvisorModal';
 import { ExportBundleModal } from './components/production/ExportBundleModal';
 
 const STORAGE_KEY = 'moldcraft_production_tasks_v3';
+const STORAGE_TIME_KEY = 'moldcraft_last_upload_time_v3';
 
 export default function App() {
   // Load tasks from localStorage or parse RAW_PRODUCTION_CSV (ensuring 24h format)
@@ -39,6 +40,21 @@ export default function App() {
       console.error('Error loading stored production tasks:', e);
     }
     return parseProductionCSV(RAW_PRODUCTION_CSV);
+  });
+
+  // Last uploaded date and time
+  const [lastUploadTime, setLastUploadTime] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_TIME_KEY);
+      if (saved) return saved;
+    } catch (e) {
+      console.error('Error reading upload time:', e);
+    }
+    const initialTime = new Date().toISOString();
+    try {
+      localStorage.setItem(STORAGE_TIME_KEY, initialTime);
+    } catch (e) {}
+    return initialTime;
   });
 
   // Current active view: machine, job, timeline, master
@@ -114,6 +130,11 @@ export default function App() {
     } else {
       setTasks((prev) => [...prev, ...formatted]);
     }
+    const now = new Date().toISOString();
+    setLastUploadTime(now);
+    try {
+      localStorage.setItem(STORAGE_TIME_KEY, now);
+    } catch (e) {}
   };
 
   const handleResetToDefault = () => {
@@ -121,6 +142,11 @@ export default function App() {
     setTasks(defaultData);
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem('moldcraft_production_tasks_v2');
+    const now = new Date().toISOString();
+    setLastUploadTime(now);
+    try {
+      localStorage.setItem(STORAGE_TIME_KEY, now);
+    } catch (e) {}
   };
 
   const handleExportCSV = () => {
@@ -142,12 +168,14 @@ export default function App() {
           }
           setCurrentView(v);
         }}
+        onOpenUpload={() => setUploadModalOpen(true)}
         onExportCSV={handleExportCSV}
         onOpenAIAdvisor={() => setAIAdvisorModalOpen(true)}
         onOpenExportBundle={() => setExportBundleModalOpen(true)}
         totalTasks={tasks.length}
         totalMachines={machineSummaries.length}
         totalJobs={jobSummaries.length}
+        lastUploadTime={lastUploadTime}
       />
 
       {/* Main View Area */}
@@ -197,6 +225,7 @@ export default function App() {
               setCurrentView('job');
             }}
             onOpenUpload={() => setUploadModalOpen(true)}
+            lastUploadTime={lastUploadTime}
           />
         )}
       </main>
@@ -207,6 +236,7 @@ export default function App() {
         onClose={() => setUploadModalOpen(false)}
         onUpdateTasks={handleUpdateTasks}
         onResetToDefault={handleResetToDefault}
+        lastUploadTime={lastUploadTime}
       />
 
       <AIAdvisorModal

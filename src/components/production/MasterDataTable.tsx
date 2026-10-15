@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { ProductionTask } from '../../types/production';
-import { Search, ArrowUpDown, Filter, Layers, Cpu, Download, Upload } from 'lucide-react';
+import { Search, ArrowUpDown, Filter, Layers, Cpu, Download, Upload, Clock } from 'lucide-react';
+import { formatDateTimeThai24h } from '../../utils/productionParser';
 
 interface MasterDataTableProps {
   tasks: ProductionTask[];
   onSelectMachine: (machineName: string) => void;
   onSelectJob: (jobWbs: string) => void;
   onOpenUpload?: () => void;
+  lastUploadTime?: string;
 }
 
 export const MasterDataTable: React.FC<MasterDataTableProps> = ({
@@ -14,7 +16,10 @@ export const MasterDataTable: React.FC<MasterDataTableProps> = ({
   onSelectMachine,
   onSelectJob,
   onOpenUpload,
+  lastUploadTime,
 }) => {
+  const formattedTime = useMemo(() => formatDateTimeThai24h(lastUploadTime), [lastUploadTime]);
+
   const [search, setSearch] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
   const [showSummariesOnly, setShowSummariesOnly] = useState<boolean>(false);
@@ -114,14 +119,23 @@ export const MasterDataTable: React.FC<MasterDataTableProps> = ({
           </span>
 
           {onOpenUpload && (
-            <button
-              onClick={onOpenUpload}
-              className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-all shadow-xs hover:shadow-sm whitespace-nowrap cursor-pointer"
-              title="อัปโหลดไฟล์ (.xlsx, .csv, .mpp) เพื่ออัปเดตแผนงาน"
-            >
-              <Upload className="w-4 h-4" />
-              <span>อัพโหลดไฟล์เพิ่มอัพเดทแผน</span>
-            </button>
+            <div className="flex flex-col items-end">
+              <button
+                onClick={onOpenUpload}
+                className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-all shadow-xs hover:shadow-sm whitespace-nowrap cursor-pointer"
+                title="อัปโหลดไฟล์ (.xlsx, .csv, .mpp) เพื่ออัปเดตแผนงาน"
+              >
+                <Upload className="w-4 h-4" />
+                <span>อัพโหลดไฟล์เพิ่มอัพเดทแผน</span>
+              </button>
+              <div 
+                className="flex items-center gap-1.5 text-[11px] text-slate-500 font-mono mt-1 select-none"
+                title="วันที่และเวลาที่มีการอัปโหลดหรืออัปเดตข้อมูลแผนงานล่าสุด (24 ชั่วโมง)"
+              >
+                <Clock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                <span>วันที่ {formattedTime.dateStr} เวลา {formattedTime.timeStr} น.</span>
+              </div>
+            </div>
           )}
         </div>
       </div>

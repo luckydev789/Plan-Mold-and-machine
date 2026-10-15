@@ -401,3 +401,27 @@ export function computeJobSummaries(tasks: ProductionTask[]): JobSummary[] {
 
   return result.sort((a, b) => a.wbs.localeCompare(b.wbs, undefined, { numeric: true }));
 }
+
+// Format date and time in Thai 24-hour format
+export function formatDateTimeThai24h(isoOrDate?: string | Date | number): {
+  dateStr: string;
+  timeStr: string;
+  fullStr: string;
+} {
+  const d = isoOrDate ? new Date(isoOrDate) : new Date();
+  const valid = !isNaN(d.getTime()) ? d : new Date();
+
+  const day = valid.getDate().toString().padStart(2, '0');
+  const month = (valid.getMonth() + 1).toString().padStart(2, '0');
+  const year = valid.getFullYear();
+  const hours = valid.getHours().toString().padStart(2, '0');
+  const minutes = valid.getMinutes().toString().padStart(2, '0');
+  const seconds = valid.getSeconds().toString().padStart(2, '0');
+
+  const dateStr = `${day}/${month}/${year}`;
+  const timeStr = `${hours}:${minutes}:${seconds}`;
+  const fullStr = `วันที่ ${dateStr} เวลา ${timeStr} น.`;
+
+  return { dateStr, timeStr, fullStr };
+}
+
